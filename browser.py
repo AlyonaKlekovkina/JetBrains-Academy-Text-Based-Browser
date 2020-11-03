@@ -2,8 +2,16 @@ import os
 import os.path
 import sys
 import requests
+import re
 
 from bs4 import BeautifulSoup
+
+from colorama import init
+
+init()
+
+from colorama import Fore
+
 
 # write your code here
 args = sys.argv
@@ -19,7 +27,16 @@ def request_content(users_input):
     try:
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
-        return soup.get_text()
+        tags = soup.find_all(["p", "h1", "h2", "h3", "h4", "h5", "h6", "a", "ul", "ol", "li"])
+        result = ''
+        for tag in tags:
+            if tag.name == "a":
+                tag = tag.text.strip().replace("\n", "")
+                result += Fore.BLUE + str(tag) + "\n"
+            else:
+                tag = tag.text.strip().replace("\n", "")
+                result += Fore.BLACK + str(tag) + "\n"
+        return result
     except requests.exceptions.ConnectionError:
         return "Connection refused"
 
@@ -33,15 +50,19 @@ def create_directory():
 
 
 def get_name(users_input):
-    a = users_input.split('.')
-    if len(a) <= 2:
-        name = a[0]
-        return name
+    if users_input.startswith("https://"):
+        n = users_input.split('https://')
+        return n[1]
     else:
-        name = ''
-        for i in range(len(a) - 1):
-            name += a[i] + '.'
-        return name[:-1]
+        a = users_input.split('.')
+        if len(a) <= 2:
+            name = a[0]
+            return name
+        else:
+            name = ''
+            for i in range(len(a) - 1):
+                name += a[i] + '.'
+            return name[:-1]
 
 
 def save_file(name, text):
