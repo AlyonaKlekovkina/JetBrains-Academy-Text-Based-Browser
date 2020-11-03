@@ -3,6 +3,8 @@ import os.path
 import sys
 import requests
 
+from bs4 import BeautifulSoup
+
 # write your code here
 args = sys.argv
 dir_name = args[1]
@@ -16,7 +18,8 @@ def request_content(users_input):
         url = "https://" + users_input
     try:
         response = requests.get(url)
-        return response.text
+        soup = BeautifulSoup(response.content, 'html.parser')
+        return soup.get_text()
     except requests.exceptions.ConnectionError:
         return "Connection refused"
 
